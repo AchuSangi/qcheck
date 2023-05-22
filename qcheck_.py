@@ -3,8 +3,9 @@ import json
 import csv
 import pandas as pd
 from PIL import Image
-#import matplotlib.pyplot as plt
 import numpy as np
+import os
+import shutil
 
 with open('data.json', 'r') as f:
     data = json.load(f)
@@ -71,38 +72,13 @@ def login():
             else:
                 st.error("Passwords do not match")
                 
-# Funktion zur Erstellung eines Balkendiagramms
-def create_bar_chart(x, y, title):
-    fig, ax = plt.subplots()
-    ax.bar(x, y)
-    ax.set_xlabel('X-Achse')
-    ax.set_ylabel('Y-Achse')
-    ax.set_title(title)
-    st.pyplot(fig)
-
-# Funktion zur Erstellung eines Liniendiagramms
-def create_line_chart(x, y, title):
-    fig, ax = plt.subplots()
-    ax.plot(x, y)
-    ax.set_xlabel('X-Achse')
-    ax.set_ylabel('Y-Achse')
-    ax.set_title(title)
-    st.pyplot(fig)
-
-# Funktion zur Erstellung eines Kreisdiagramms
-def create_pie_chart(labels, sizes, title):
-    fig, ax = plt.subplots()
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%')
-    ax.set_title(title)
-    st.pyplot(fig)
-
 
 # Seite für Willkommensnachricht nach erfolgreicher Anmeldung
 def welcome():
 
     # Sidebar mit Optionen
     st.sidebar.write("## Menu")
-    options = ["Analytics", "About Us"]
+    options = ["Analytics", "Videos", "About Us"]
     choice = st.sidebar.selectbox("Select Option", options)
     
     # Display anzeigen
@@ -113,7 +89,7 @@ def welcome():
         st.markdown(""" <h2 style='font-size: 20px;'><em>Qualitycheck</em> is an open-source app framework built specifically to check quality control range in your laboratory.</h2> """, unsafe_allow_html=True)
 
         #verschiedene Tabs horizontal
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(["Hematogram II", "Hematogram V", "Shortcut & Definitions", "Graphic", "Videos"])
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["Hematogram II", "Hematogram V", "Shortcut & Definitions", "Graphic", "etc"])
 
         with tab1:
             st.header("Hematogram II")
@@ -243,30 +219,62 @@ def welcome():
             selected_chart = st.selectbox("Select Chart Type", chart_options)
 
         if selected_chart == "Bar Chart":
-            st.subheader("Bar Chart Example")
+            st.header('Bar Chart Example')
             x = ['A', 'B', 'C', 'D', 'E']
             y = [10, 7, 5, 3, 1]
-            create_bar_chart(x, y, "Example Bar Chart")
 
         elif selected_chart == "Line Chart":
-            st.subheader("Line Chart Example")
+            st.header('Line Chart Example')
             x = np.linspace(0, 10, 100)
             y = np.sin(x)
-            create_line_chart(x, y, "Example Line Chart")
-
+            
         elif selected_chart == "Pie Chart":
-            st.subheader("Pie Chart Example")
+            st.header('Pie Chart Example')
             labels = ['Category 1', 'Category 2', 'Category 3']
-            sizes = [30, 50, 20]
-            create_pie_chart(labels, sizes, "Example Pie Chart")
+            sizes = [30, 50, 20]         
+        
 
+    #About us tab, Schriftart und Grösse definiert
+    if choice == "Videos":
+    
+        st.write('<style>h1{font-size: 36px; font-weight: bold;}</style>', unsafe_allow_html=True)
+        st.title('Videos')
+        st.write("<p style='font-size: 30px; color: grey; text-decoration: none;'>Discovering solutions, delivering results</p>", unsafe_allow_html=True)
 
-        with tab5:
-            st.header("Video Upload")
-            uploaded_file = st.file_uploader("Upload a video", type=["mp4"])
+        st.markdown(
+         """
+         <p style='font-size: 20px;'>Welcome to our website! Here you will find an extensive collection of instructional videos designed to help you acquire new skills and expand your knowledge in various areas.
+Our goal is to make education accessible and enjoyable. We firmly believe that learning is a lifelong process and that everyone should have the opportunity to educate themselves, regardless of time, location, or financial resources. With our instructional videos, we offer you the flexibility to set your own learning pace and choose the topics that interest you the most.
+Our videos are created by experienced professionals and experts in their respective fields. We place great emphasis on delivering high-quality content that is precise and easy to understand. Whether you want to enhance your professional skills, explore a new hobby, or simply broaden your knowledge, we have a diverse range of topics that cater to your interests.
+Our intuitive user interface allows you to browse the instructional videos by categories or search for specific topics. We regularly update our content to ensure that you stay up to date and have access to the latest knowledge.
+We firmly believe that learning can be not only informative but also entertaining. Therefore, we place great emphasis on engaging presentation and interactive elements in our videos. We want you to have fun while learning and simultaneously grow as an individual.
+So, what are you waiting for? Dive into our world of instructional videos and discover new horizons. Get ready to expand your knowledge, acquire new skills, and ignite your passions. The possibilities are limitless, and we are here to accompany you on this exciting educational journey.
+Ready to get started? Browse through our videos and experience the power of hands-on learning. Enjoy and best of luck!</p>
+         <p style='font-size: 20px;'>Visit our website to learn more about our services, and let us help you optimize your hematology laboratory's performance. Our team is here to support you with any additional information or help you require.</p>
+         """, unsafe_allow_html=True)
+      
+        #Bild3 hinzugefügt mit Spruch
+        imageabout = Image.open('bilder/headphone.jpg')
+        st.image(imageabout, caption='"Learning never exhausts the mind." - Leonardo da Vinci', use_column_width=True)
+    
+# Pfad zum Speicherort der Videos
+    video_save_path = "videos"  # Hier kannst du den Speicherort anpassen
 
-        if uploaded_file is not None:
-            st.video(uploaded_file)
+    st.header("Video Upload")
+    uploaded_video = st.file_uploader("Upload a video", type=["mp4"])
+
+    if uploaded_video is not None:
+    # Button zum Speichern des Videos
+        if st.button("Save Video"):
+        # Speicherpfad für das Video
+            save_path = os.path.join(video_save_path, uploaded_video.name)
+
+        # Video speichern
+            with open(save_path, "wb") as f:
+                f.write(uploaded_video.getbuffer())
+
+        st.success("Video successfully saved.")
+
         
     #About us tab, Schriftart und Grösse definiert
     if choice == "About Us":
